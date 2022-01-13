@@ -2,9 +2,9 @@ package com.example.todoapp
 
 import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.example.todoapp.model.TodoModel
 
 class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
     SQLiteOpenHelper(context, DATABASE_NAME, factory, DATABASE_VERSION) {
@@ -44,9 +44,22 @@ class DBHelper(context: Context, factory: SQLiteDatabase.CursorFactory?) :
         db.update(TABLE_NAME, values, "id=$id", arrayOf())
     }
 
-    fun getName(): Cursor? {
+    fun  getTodoList(): ArrayList<TodoModel> {
         val db = this.readableDatabase
-        return db.rawQuery("SELECT * FROM $TABLE_NAME", null)
+        val todoList: ArrayList<TodoModel> = ArrayList()
+        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME", null)
+        if (cursor.moveToFirst()) {
+            do {
+                todoList.add(
+                    TodoModel(
+                        cursor.getString(1),
+                        cursor.getString(2),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close();
+        return todoList
     }
 
     companion object{
